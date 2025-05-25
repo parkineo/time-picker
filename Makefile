@@ -337,7 +337,7 @@ git-status: ## Show git status
 .PHONY: git-tag
 git-tag: ## Create git tag for current version
 	@echo "$(GREEN)Creating git tag v$(VERSION)...$(NC)"
-	git tag v$(VERSION)
+	#git tag v$(VERSION)
 	git push origin v$(VERSION)
 	@echo "$(GREEN)✓ Tag v$(VERSION) created and pushed$(NC)"
 

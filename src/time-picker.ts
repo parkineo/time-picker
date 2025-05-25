@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-import { TimeUtils } from './utils';
+import {TimeUtils} from './utils';
 
 export interface TimePickerOptions {
     format?: '12h' | '24h';
@@ -109,7 +109,7 @@ export class TimePicker {
     private populateTimeList(): void {
         // Use TimeUtils to generate time options
         const range = (this.options.minTime && this.options.maxTime)
-            ? { start: this.options.minTime, end: this.options.maxTime }
+            ? {start: this.options.minTime, end: this.options.maxTime}
             : undefined;
 
         const times = TimeUtils.generateTimeOptions(this.options.step, range);
@@ -201,13 +201,14 @@ export class TimePicker {
         }
 
         // Trigger change event
-        const event = new Event('change', { bubbles: true });
+        const event = new Event('change', {bubbles: true});
         this.element.dispatchEvent(event);
     }
 
     private bindEvents(): void {
         this.element.addEventListener('click', (e: Event) => {
             e.preventDefault();
+            e.stopPropagation();
             if (!this.options.disabled) {
                 this.toggle();
             }
@@ -226,9 +227,11 @@ export class TimePicker {
         // Close dropdown when clicking outside
         document.addEventListener('click', (e: Event) => {
             const target = e.target as Element;
-            if (!this.element.contains(target) && !this.dropdown.contains(target)) {
-                this.close();
-            }
+            setTimeout(() => {
+                if (!this.element.contains(target) && !this.dropdown.contains(target)) {
+                    this.close();
+                }
+            }, 0);
         });
     }
 
@@ -279,7 +282,7 @@ export class TimePicker {
         // Scroll to selected time
         const selectedOption = this.timeList.querySelector('.selected') as HTMLElement;
         if (selectedOption) {
-            selectedOption.scrollIntoView({ block: 'nearest' });
+            selectedOption.scrollIntoView({block: 'nearest'});
         }
     }
 
@@ -349,7 +352,7 @@ export class TimePicker {
     }
 
     public updateOptions(newOptions: Partial<TimePickerOptions>): void {
-        this.options = { ...this.options, ...newOptions };
+        this.options = {...this.options, ...newOptions};
 
         // Recreate dropdown with new options
         if (this.dropdown && this.dropdown.parentNode) {
@@ -368,7 +371,7 @@ export class TimePicker {
     }
 
     public getOptions(): TimePickerOptions {
-        return { ...this.options };
+        return {...this.options};
     }
 
     public isDisabled(): boolean {
@@ -408,7 +411,7 @@ export class TimePicker {
 }
 
 // Auto-initialize elements with data-time-picker attribute
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const elements = document.querySelectorAll<HTMLInputElement>('[data-time-picker]');
     elements.forEach((element: HTMLInputElement) => {
         const format = (element.dataset.format as TimeFormat) || '12h';
