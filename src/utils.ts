@@ -53,16 +53,16 @@ export class TimeUtils {
         const match = time12h.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
         if (!match) return time12h;
 
-        let [, hours, minutes, period] = match;
-        let hour = parseInt(hours, 10);
+        const [, hoursStr, minutes, period] = match;
+        let hours = parseInt(hoursStr, 10);
 
-        if (period.toUpperCase() === 'PM' && hour !== 12) {
-            hour += 12;
-        } else if (period.toUpperCase() === 'AM' && hour === 12) {
-            hour = 0;
+        if (period.toUpperCase() === 'PM' && hours !== 12) {
+            hours += 12;
+        } else if (period.toUpperCase() === 'AM' && hours === 12) {
+            hours = 0;
         }
 
-        return `${hour.toString().padStart(2, '0')}:${minutes}`;
+        return `${hours.toString().padStart(2, '0')}:${minutes}`;
     }
 
     /**

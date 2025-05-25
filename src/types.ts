@@ -30,7 +30,7 @@ export interface TimePickerPosition {
     width: number;
 }
 
-export type TimeChangeCallback = (time: string, formattedTime: string) => void;
+export type TimeChangeCallback = (_time: string, _formattedTime: string) => void;
 
 export interface TimeValidationResult {
     isValid: boolean;
