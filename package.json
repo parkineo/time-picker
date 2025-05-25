@@ -1,0 +1,48 @@
+{
+  "name": "@parkineo/time-picker",
+  "version": "1.0.0",
+  "description": "A lightweight, framework-agnostic time picker component for web applications",
+  "main": "dist/time-picker.js",
+  "module": "dist/time-picker.esm.js",
+  "types": "dist/time-picker.d.ts",
+  "unpkg": "dist/time-picker.min.js",
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "npm run build:ts && npm run build:bundle && npm run build:css",
+    "build:ts": "tsc",
+    "build:bundle": "rollup -c",
+    "build:css": "postcss src/time-picker.css -o dist/time-picker.css",
+    "build:minify": "terser dist/time-picker.js -o dist/time-picker.min.js --source-map",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "serve": "http-server examples -p 8080",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "time", "picker", "timepicker", "vanilla-js", "typescript", "php",
+    "javascript", "web-component", "form", "input"
+  ],
+  "author": "parkineo",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "rollup": "^3.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "terser": "^5.0.0",
+    "postcss": "^8.0.0",
+    "postcss-cli": "^10.0.0",
+    "http-server": "^14.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  }
+}
