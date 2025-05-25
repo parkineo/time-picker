@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TimePicker Examples - @parkineo/time-picker</title>
-    <link rel="stylesheet" href="../dist/time-picker.css">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -74,9 +73,69 @@
             font-size: 14px;
         }
 
-        .form-group input[type="text"] {
+        .form-group input[type="text"],
+        .form-group input[type="date"] {
             width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
             box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* TimePicker Styles */
+        .time-picker-input {
+            position: relative;
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+
+        .time-picker-input:disabled {
+            background-color: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .time-picker-dropdown {
+            position: absolute;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 200px;
+            overflow: hidden;
+        }
+
+        .time-picker-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+
+        .time-picker-option {
+            padding: 8px 12px;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.1s ease-in-out;
+        }
+
+        .time-picker-option:hover {
+            background-color: #f3f4f6;
+        }
+
+        .time-picker-option.selected {
+            background-color: #3b82f6;
+            color: #ffffff;
         }
 
         .btn {
@@ -115,85 +174,23 @@
             border-left: 4px solid #3b82f6;
         }
 
-        .code-section {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .code-section h3 {
-            color: #1e293b;
-            margin-top: 0;
-            margin-bottom: 16px;
-        }
-
-        pre {
-            background-color: #1e293b;
-            color: #f8fafc;
-            padding: 16px;
+        .alert {
+            padding: 15px;
             border-radius: 8px;
-            overflow-x: auto;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #e2e8f0;
             margin-bottom: 20px;
+            border: 1px solid;
         }
 
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-            color: #64748b;
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d;
         }
 
-        .tab.active {
-            color: #3b82f6;
-            border-bottom-color: #3b82f6;
-        }
-
-        .tab:hover {
-            color: #1e293b;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin: 20px 0;
-        }
-
-        .feature {
-            background: #f8fafc;
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #3b82f6;
-        }
-
-        .feature h4 {
-            margin: 0 0 8px 0;
-            color: #1e293b;
-            font-size: 16px;
-        }
-
-        .feature p {
-            margin: 0;
-            color: #64748b;
-            font-size: 14px;
+        .alert-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-color: #93c5fd;
         }
 
         @media (max-width: 768px) {
@@ -214,23 +211,8 @@
     <p><strong>@parkineo/time-picker</strong></p>
 </div>
 
-<div class="features-grid">
-    <div class="feature">
-        <h4>🕐 Multiple Formats</h4>
-        <p>Support for 12h and 24h time formats</p>
-    </div>
-    <div class="feature">
-        <h4>⌨️ Keyboard Navigation</h4>
-        <p>Full keyboard accessibility support</p>
-    </div>
-    <div class="feature">
-        <h4>🎨 Customizable</h4>
-        <p>Easy CSS theming and styling</p>
-    </div>
-    <div class="feature">
-        <h4>📱 Mobile Friendly</h4>
-        <p>Touch-optimized interface</p>
-    </div>
+<div class="alert alert-info" id="status-alert">
+    <strong>Loading TimePicker...</strong> Please wait while we load the component.
 </div>
 
 <div class="examples-grid">
@@ -282,62 +264,9 @@
         <div class="output" id="business-output">Only business hours selectable</div>
     </div>
 
-    <!-- Custom Steps -->
-    <div class="example-card">
-        <h3>4. Custom Time Steps</h3>
-        <p>5-minute intervals instead of default 15-minute</p>
-
-        <div class="form-group">
-            <label for="custom-step">5-Minute Steps:</label>
-            <input type="text" id="custom-step" placeholder="5-minute intervals">
-        </div>
-
-        <button class="btn" onclick="getStepValue()">Get Value</button>
-        <button class="btn btn-secondary" onclick="setStepValue()">Set 10:05 AM</button>
-
-        <div class="output" id="step-output">Precise 5-minute intervals</div>
-    </div>
-
-    <!-- Auto-Initialize -->
-    <div class="example-card">
-        <h3>5. Auto-Initialize</h3>
-        <p>Using data attributes for automatic setup</p>
-
-        <div class="form-group">
-            <label for="auto-init">Auto-Initialized:</label>
-            <input type="text"
-                   id="auto-init"
-                   data-time-picker
-                   data-format="12h"
-                   data-default-time="09:00"
-                   data-min-time="08:00"
-                   data-max-time="18:00"
-                   data-step="30"
-                   placeholder="Auto-initialized with data attributes">
-        </div>
-
-        <div class="output">This picker was auto-initialized using data-* attributes</div>
-    </div>
-
-    <!-- With Callbacks -->
-    <div class="example-card">
-        <h3>6. Event Callbacks</h3>
-        <p>Time picker with change event handling</p>
-
-        <div class="form-group">
-            <label for="callback-time">With Callbacks:</label>
-            <input type="text" id="callback-time" placeholder="Select time to see events">
-        </div>
-
-        <button class="btn" onclick="toggleCallbackPicker()">Toggle Disabled</button>
-        <button class="btn btn-secondary" onclick="clearCallback()">Clear</button>
-
-        <div class="output" id="callback-output">Select a time to see callback events</div>
-    </div>
-
     <!-- Form Integration -->
     <div class="example-card">
-        <h3>7. Form Integration</h3>
+        <h3>4. Form Integration</h3>
         <p>Time picker integrated with form submission</p>
 
         <form onsubmit="handleFormSubmit(event)">
@@ -356,155 +285,366 @@
 
         <div class="output" id="form-output">Fill form and submit to see values</div>
     </div>
-
-    <!-- Multiple Pickers -->
-    <div class="example-card">
-        <h3>8. Multiple Time Pickers</h3>
-        <p>Start and end time selection</p>
-
-        <div class="form-group">
-            <label for="start-time">Start Time:</label>
-            <input type="text" id="start-time" placeholder="Start time">
-        </div>
-
-        <div class="form-group">
-            <label for="end-time">End Time:</label>
-            <input type="text" id="end-time" placeholder="End time">
-        </div>
-
-        <button class="btn" onclick="calculateDuration()">Calculate Duration</button>
-
-        <div class="output" id="duration-output">Select start and end times</div>
-    </div>
 </div>
 
-<!-- Code Examples Section -->
-<div class="code-section">
-    <h3>Installation & Usage</h3>
-
-    <div class="tabs">
-        <div class="tab active" onclick="showTab('cdn')">CDN</div>
-        <div class="tab" onclick="showTab('npm')">NPM</div>
-        <div class="tab" onclick="showTab('typescript')">TypeScript</div>
+<!-- Instructions -->
+<div class="example-card">
+    <h3>🔧 Setup Instructions</h3>
+    <p>To get this example working with your built TimePicker:</p>
+    <ol>
+        <li><strong>Build the project:</strong> <code>make build</code></li>
+        <li><strong>Ensure files exist:</strong>
+            <ul>
+                <li><code>dist/time-picker.js</code></li>
+                <li><code>dist/time-picker.css</code></li>
+            </ul>
+        </li>
+        <li><strong>Update paths:</strong> Make sure the script and CSS paths are correct</li>
+    </ol>
+    <div class="output" id="debug-info">
+        Click "Check Files" to verify if the required files are accessible
     </div>
-
-    <div class="tab-content active" id="cdn-content">
-        <h4>CDN Usage</h4>
-        <pre><code>&lt;!-- CSS --&gt;
-&lt;link rel="stylesheet" href="https://unpkg.com/@parkineo/time-picker/dist/time-picker.min.css"&gt;
-
-&lt;!-- HTML --&gt;
-&lt;input type="text" id="time-input" placeholder="Select time"&gt;
-
-&lt;!-- JavaScript --&gt;
-&lt;script src="https://unpkg.com/@parkineo/time-picker/dist/time-picker.min.js"&gt;&lt;/script&gt;
-&lt;script&gt;
-new TimePicker('#time-input', {
-    format: '12h',
-    onChange: function(time, formattedTime) {
-        console.log('Selected:', formattedTime);
-    }
-});
-&lt;/script&gt;</code></pre>
-    </div>
-
-    <div class="tab-content" id="npm-content">
-        <h4>NPM Installation</h4>
-        <pre><code># Install
-npm install @parkineo/time-picker
-
-# Import CSS
-import '@parkineo/time-picker/dist/time-picker.css';
-
-# Import JavaScript
-import TimePicker from '@parkineo/time-picker';
-
-const picker = new TimePicker('#time-input', {
-    format: '24h',
-    step: 15
-});</code></pre>
-    </div>
-
-    <div class="tab-content" id="typescript-content">
-        <h4>TypeScript Usage</h4>
-        <pre><code>import TimePicker, { TimePickerOptions } from '@parkineo/time-picker';
-
-const options: TimePickerOptions = {
-    format: '12h',
-    minTime: '09:00',
-    maxTime: '17:00',
-    step: 30,
-    onChange: (time: string, formatted: string) => {
-        console.log(`Selected: ${formatted}`);
-    }
-};
-
-const picker = new TimePicker('#time-input', options);
-
-// Type-safe API calls
-const currentTime: string = picker.getValue();
-picker.setValue('14:30');</code></pre>
-    </div>
+    <button class="btn" onclick="checkFiles()">Check Files</button>
 </div>
 
-<script src="../dist/time-picker.js"></script>
+<!-- Fallback TimePicker Implementation -->
 <script>
-    // Initialize all the time pickers
-    let pickers = {};
+    // Fallback TimePicker implementation for when the main file isn't available
+    class FallbackTimePicker {
+        constructor(selector, options = {}) {
+            this.element = typeof selector === 'string' ? document.querySelector(selector) : selector;
 
-    // 1. Basic time picker
-    pickers.basic = new TimePicker('#basic-time', {
-        format: '12h'
-    });
+            if (!this.element) {
+                throw new Error('TimePicker: Element not found');
+            }
 
-    // 2. 24-hour format
-    pickers.time24h = new TimePicker('#time-24h', {
-        format: '24h'
-    });
+            this.options = {
+                format: '12h',
+                defaultTime: '',
+                minTime: null,
+                maxTime: null,
+                step: 15,
+                placeholder: 'Select time',
+                disabled: false,
+                onChange: null,
+                ...options
+            };
 
-    // 3. Business hours only
-    pickers.business = new TimePicker('#business-hours', {
-        format: '12h',
-        minTime: '09:00',
-        maxTime: '17:00'
-    });
+            this.selectedTime = this.options.defaultTime || '';
+            this.isOpen = false;
 
-    // 4. Custom step intervals
-    pickers.customStep = new TimePicker('#custom-step', {
-        format: '12h',
-        step: 5
-    });
-
-    // 6. With callbacks
-    pickers.callback = new TimePicker('#callback-time', {
-        format: '12h',
-        onChange: function(time, formattedTime) {
-            document.getElementById('callback-output').textContent =
-                `Time changed! Raw: ${time}, Formatted: ${formattedTime}`;
+            this.init();
         }
-    });
 
-    // 7. Form integration
-    pickers.meeting = new TimePicker('#meeting-time', {
-        format: '12h',
-        minTime: '08:00',
-        maxTime: '18:00',
-        step: 30
-    });
+        init() {
+            this.element.setAttribute('readonly', 'true');
+            this.element.setAttribute('placeholder', this.options.placeholder);
+            this.element.classList.add('time-picker-input');
 
-    // 8. Multiple pickers for duration
-    pickers.startTime = new TimePicker('#start-time', {
-        format: '24h',
-        step: 15
-    });
+            this.createDropdown();
+            this.bindEvents();
 
-    pickers.endTime = new TimePicker('#end-time', {
-        format: '24h',
-        step: 15
-    });
+            if (this.selectedTime) {
+                this.element.value = this.formatTime(this.selectedTime);
+            }
+        }
+
+        createDropdown() {
+            this.dropdown = document.createElement('div');
+            this.dropdown.className = 'time-picker-dropdown';
+            this.dropdown.style.display = 'none';
+
+            this.timeList = document.createElement('div');
+            this.timeList.className = 'time-picker-list';
+
+            this.populateTimeList();
+            this.dropdown.appendChild(this.timeList);
+
+            const parent = this.element.parentNode;
+            if (parent) {
+                parent.insertBefore(this.dropdown, this.element.nextSibling);
+            }
+        }
+
+        populateTimeList() {
+            const times = this.generateTimeOptions();
+
+            times.forEach(time => {
+                const timeOption = document.createElement('div');
+                timeOption.className = 'time-picker-option';
+                timeOption.textContent = this.formatTime(time);
+                timeOption.dataset.time = time;
+
+                timeOption.addEventListener('click', () => {
+                    this.selectTime(time);
+                });
+
+                this.timeList.appendChild(timeOption);
+            });
+        }
+
+        generateTimeOptions() {
+            const times = [];
+            const stepMinutes = this.options.step;
+
+            for (let hour = 0; hour < 24; hour++) {
+                for (let minute = 0; minute < 60; minute += stepMinutes) {
+                    const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+
+                    if (this.isTimeInRange(timeString)) {
+                        times.push(timeString);
+                    }
+                }
+            }
+
+            return times;
+        }
+
+        isTimeInRange(time) {
+            if (!this.options.minTime && !this.options.maxTime) {
+                return true;
+            }
+
+            const timeMinutes = this.timeToMinutes(time);
+
+            if (this.options.minTime) {
+                const minMinutes = this.timeToMinutes(this.options.minTime);
+                if (timeMinutes < minMinutes) return false;
+            }
+
+            if (this.options.maxTime) {
+                const maxMinutes = this.timeToMinutes(this.options.maxTime);
+                if (timeMinutes > maxMinutes) return false;
+            }
+
+            return true;
+        }
+
+        timeToMinutes(time) {
+            const [hours, minutes] = time.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        formatTime(time) {
+            if (!time) return '';
+
+            const [hours, minutes] = time.split(':').map(Number);
+
+            if (this.options.format === '12h') {
+                const period = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+            }
+
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        }
+
+        parseTime(timeString) {
+            if (!timeString) return '';
+
+            if (timeString.includes('AM') || timeString.includes('PM')) {
+                const [time, period] = timeString.split(' ');
+                const [hours, minutes] = time.split(':').map(Number);
+                let adjustedHours = hours;
+
+                if (period === 'PM' && hours !== 12) {
+                    adjustedHours += 12;
+                } else if (period === 'AM' && hours === 12) {
+                    adjustedHours = 0;
+                }
+
+                return `${adjustedHours.toString().padStart(2, '0')}:${minutes}`;
+            }
+
+            return timeString;
+        }
+
+        selectTime(time) {
+            this.selectedTime = time;
+            this.element.value = this.formatTime(time);
+            this.close();
+
+            this.timeList.querySelectorAll('.time-picker-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.time === time) {
+                    option.classList.add('selected');
+                }
+            });
+
+            if (this.options.onChange) {
+                this.options.onChange(time, this.formatTime(time));
+            }
+
+            const event = new Event('change', { bubbles: true });
+            this.element.dispatchEvent(event);
+        }
+
+        bindEvents() {
+            this.element.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (!this.options.disabled) {
+                    this.toggle();
+                }
+            });
+
+            this.element.addEventListener('focus', () => {
+                if (!this.options.disabled) {
+                    this.open();
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!this.element.contains(e.target) && !this.dropdown.contains(e.target)) {
+                    this.close();
+                }
+            });
+        }
+
+        open() {
+            if (this.isOpen || this.options.disabled) return;
+
+            this.isOpen = true;
+            this.dropdown.style.display = 'block';
+            this.positionDropdown();
+        }
+
+        close() {
+            if (!this.isOpen) return;
+
+            this.isOpen = false;
+            this.dropdown.style.display = 'none';
+        }
+
+        toggle() {
+            if (this.isOpen) {
+                this.close();
+            } else {
+                this.open();
+            }
+        }
+
+        positionDropdown() {
+            const rect = this.element.getBoundingClientRect();
+            const dropdownHeight = this.dropdown.offsetHeight;
+            const viewportHeight = window.innerHeight;
+
+            let top = rect.bottom + window.scrollY;
+
+            if (rect.bottom + dropdownHeight > viewportHeight) {
+                top = rect.top + window.scrollY - dropdownHeight;
+            }
+
+            this.dropdown.style.position = 'absolute';
+            this.dropdown.style.top = `${top}px`;
+            this.dropdown.style.left = `${rect.left + window.scrollX}px`;
+            this.dropdown.style.width = `${rect.width}px`;
+            this.dropdown.style.zIndex = '1000';
+        }
+
+        // Public API
+        getValue() {
+            return this.selectedTime;
+        }
+
+        getFormattedValue() {
+            return this.formatTime(this.selectedTime);
+        }
+
+        setValue(time) {
+            const parsedTime = this.parseTime(time);
+            if (this.isTimeInRange(parsedTime)) {
+                this.selectTime(parsedTime);
+            }
+        }
+
+        enable() {
+            this.options.disabled = false;
+            this.element.removeAttribute('disabled');
+        }
+
+        disable() {
+            this.options.disabled = true;
+            this.element.setAttribute('disabled', 'true');
+            this.close();
+        }
+
+        isDisabled() {
+            return this.options.disabled;
+        }
+
+        destroy() {
+            if (this.dropdown && this.dropdown.parentNode) {
+                this.dropdown.remove();
+            }
+            this.element.classList.remove('time-picker-input');
+            this.element.removeAttribute('readonly');
+        }
+    }
+
+    // Global variables
+    let pickers = {};
+    let TimePicker = null;
+    let isBuiltVersion = false;
+
+    // Try to load the built TimePicker, fallback to our implementation
+    function initializeTimePicker() {
+        // Check if TimePicker is available from the built file
+        if (window.TimePicker && typeof window.TimePicker === 'function') {
+            TimePicker = window.TimePicker;
+            isBuiltVersion = true;
+            document.getElementById('status-alert').innerHTML =
+                '<strong>✅ Built TimePicker loaded successfully!</strong> Using the production version.';
+            document.getElementById('status-alert').className = 'alert alert-info';
+        } else {
+            TimePicker = FallbackTimePicker;
+            isBuiltVersion = false;
+            document.getElementById('status-alert').innerHTML =
+                '<strong>⚠️ Using fallback TimePicker.</strong> Run <code>make build</code> to use the production version.';
+            document.getElementById('status-alert').className = 'alert alert-warning';
+        }
+
+        // Initialize all pickers
+        try {
+            initializePickers();
+            console.log('TimePicker initialized successfully');
+        } catch (error) {
+            console.error('Error initializing TimePicker:', error);
+            document.getElementById('status-alert').innerHTML =
+                '<strong>❌ Error loading TimePicker:</strong> ' + error.message;
+            document.getElementById('status-alert').className = 'alert alert-warning';
+        }
+    }
+
+    function initializePickers() {
+        // 1. Basic time picker
+        pickers.basic = new TimePicker('#basic-time', {
+            format: '12h'
+        });
+
+        // 2. 24-hour format
+        pickers.time24h = new TimePicker('#time-24h', {
+            format: '24h'
+        });
+
+        // 3. Business hours only
+        pickers.business = new TimePicker('#business-hours', {
+            format: '12h',
+            minTime: '09:00',
+            maxTime: '17:00'
+        });
+
+        // 4. Form integration
+        pickers.meeting = new TimePicker('#meeting-time', {
+            format: '12h',
+            minTime: '08:00',
+            maxTime: '18:00',
+            step: 30
+        });
+    }
 
     // Helper functions for examples
     function getBasicValue() {
+        if (!pickers.basic) return;
         const value = pickers.basic.getValue();
         const formatted = pickers.basic.getFormattedValue();
         document.getElementById('basic-output').textContent =
@@ -512,60 +652,36 @@ picker.setValue('14:30');</code></pre>
     }
 
     function setBasicValue() {
+        if (!pickers.basic) return;
         pickers.basic.setValue('14:30');
         getBasicValue();
     }
 
     function get24hValue() {
+        if (!pickers.time24h) return;
         const value = pickers.time24h.getValue();
         document.getElementById('time-24h-output').textContent =
             `24h Value: ${value || 'empty'}`;
     }
 
     function set24hValue() {
+        if (!pickers.time24h) return;
         pickers.time24h.setValue('14:30');
         get24hValue();
     }
 
     function getBusinessValue() {
+        if (!pickers.business) return;
         const value = pickers.business.getFormattedValue();
         document.getElementById('business-output').textContent =
             `Business Hours: ${value || 'No time selected'}`;
     }
 
     function resetBusiness() {
+        if (!pickers.business) return;
         pickers.business.setValue('');
         document.getElementById('business-output').textContent =
             'Business hours picker reset';
-    }
-
-    function getStepValue() {
-        const value = pickers.customStep.getFormattedValue();
-        document.getElementById('step-output').textContent =
-            `5-min Step: ${value || 'No time selected'}`;
-    }
-
-    function setStepValue() {
-        pickers.customStep.setValue('10:05');
-        getStepValue();
-    }
-
-    function toggleCallbackPicker() {
-        if (pickers.callback.isDisabled()) {
-            pickers.callback.enable();
-            document.getElementById('callback-output').textContent =
-                'Callback picker enabled';
-        } else {
-            pickers.callback.disable();
-            document.getElementById('callback-output').textContent =
-                'Callback picker disabled';
-        }
-    }
-
-    function clearCallback() {
-        pickers.callback.setValue('');
-        document.getElementById('callback-output').textContent =
-            'Callback picker cleared';
     }
 
     function handleFormSubmit(event) {
@@ -578,54 +694,52 @@ picker.setValue('14:30');</code></pre>
             `Meeting scheduled for ${meetingDate} at ${meetingTime}`;
     }
 
-    function calculateDuration() {
-        const startTime = pickers.startTime.getValue();
-        const endTime = pickers.endTime.getValue();
+    function checkFiles() {
+        const info = [];
 
-        if (!startTime || !endTime) {
-            document.getElementById('duration-output').textContent =
-                'Please select both start and end times';
-            return;
-        }
+        // Try to load CSS
+        const cssLink = document.createElement('link');
+        cssLink.rel = 'stylesheet';
+        cssLink.href = '../dist/time-picker.css';
+        cssLink.onload = () => info.push('✅ CSS file found');
+        cssLink.onerror = () => info.push('❌ CSS file not found');
+        document.head.appendChild(cssLink);
 
-        // Simple duration calculation
-        const start = new Date(`2000-01-01 ${startTime}`);
-        const end = new Date(`2000-01-01 ${endTime}`);
-        const diffMs = end - start;
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        // Check if JS file exists by trying to create a script element
+        const script = document.createElement('script');
+        script.src = '../dist/time-picker.js';
+        script.onload = () => {
+            info.push('✅ JS file found');
+            updateDebugInfo(info);
+        };
+        script.onerror = () => {
+            info.push('❌ JS file not found');
+            updateDebugInfo(info);
+        };
 
-        document.getElementById('duration-output').textContent =
-            `Duration: ${diffHours}h ${diffMinutes}m (${startTime} to ${endTime})`;
-    }
-
-    // Tab switching functionality
-    function showTab(tabName) {
-        // Hide all tab contents
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        // Remove active class from all tabs
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-
-        // Show selected tab content
-        document.getElementById(tabName + '-content').classList.add('active');
-
-        // Add active class to clicked tab
-        event.target.classList.add('active');
-    }
-
-    // Auto-initialize message
-    document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
-            const autoInitPicker = document.querySelector('[data-time-picker]');
-            if (autoInitPicker && autoInitPicker.value) {
-                console.log('Auto-initialized picker has default value:', autoInitPicker.value);
-            }
-        }, 100);
+            updateDebugInfo(info);
+        }, 1000);
+    }
+
+    function updateDebugInfo(info) {
+        const debugElement = document.getElementById('debug-info');
+        debugElement.innerHTML = info.join('<br>') +
+            '<br><br><strong>Current status:</strong> ' +
+            (isBuiltVersion ? 'Using built version' : 'Using fallback version');
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Try to load the built version first
+        const script = document.createElement('script');
+        script.src = '../dist/time-picker.js';
+        script.onload = initializeTimePicker;
+        script.onerror = initializeTimePicker; // Fallback if file doesn't exist
+        document.head.appendChild(script);
+
+        // Set today's date as default
+        document.getElementById('meeting-date').valueAsDate = new Date();
     });
 </script>
 </body>
