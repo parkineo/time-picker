@@ -5,6 +5,8 @@
  * @license MIT
  */
 
+import { TimeUtils } from './utils';
+
 export interface TimePickerOptions {
     format?: '12h' | '24h';
     defaultTime?: string;
@@ -28,13 +30,12 @@ export type TimeString = string; // Format: "HH:mm" or "h:mm AM/PM"
 export class TimePicker {
     private element: HTMLInputElement;
     private options: Required<TimePickerOptions>;
-    private dropdown!: HTMLDivElement; // Initialized in createDropdown()
-    private timeList!: HTMLDivElement; // Initialized in createDropdown()
+    private dropdown!: HTMLDivElement;
+    private timeList!: HTMLDivElement;
     private isOpen: boolean = false;
     private selectedTime: string = '';
 
     constructor(selector: string | HTMLInputElement, options: TimePickerOptions = {}) {
-
         const element = typeof selector === 'string'
             ? document.querySelector<HTMLInputElement>(selector)
             : selector;
@@ -61,7 +62,6 @@ export class TimePicker {
         };
 
         this.selectedTime = this.options.defaultTime || '';
-
         this.init();
     }
 
@@ -71,7 +71,7 @@ export class TimePicker {
         this.bindEvents();
 
         if (this.selectedTime) {
-            this.element.value = this.formatTime(this.selectedTime);
+            this.element.value = TimeUtils.formatTime(this.selectedTime, this.options.format);
         }
     }
 
@@ -99,7 +99,6 @@ export class TimePicker {
         this.populateTimeList();
         this.dropdown.appendChild(this.timeList);
 
-        // Insert dropdown after the input element
         const parent = this.element.parentNode;
         if (!parent) {
             throw new Error('TimePicker: Input element must have a parent node');
@@ -108,12 +107,17 @@ export class TimePicker {
     }
 
     private populateTimeList(): void {
-        const times = this.generateTimeOptions();
+        // Use TimeUtils to generate time options
+        const range = (this.options.minTime && this.options.maxTime)
+            ? { start: this.options.minTime, end: this.options.maxTime }
+            : undefined;
+
+        const times = TimeUtils.generateTimeOptions(this.options.step, range);
 
         times.forEach((time: string) => {
             const timeOption = document.createElement('div');
             timeOption.className = 'time-picker-option';
-            timeOption.textContent = this.formatTime(time);
+            timeOption.textContent = TimeUtils.formatTime(time, this.options.format);
             timeOption.dataset.time = time;
             timeOption.setAttribute('role', 'option');
             timeOption.setAttribute('tabindex', '-1');
@@ -166,86 +170,22 @@ export class TimePicker {
         }
     }
 
-    private generateTimeOptions(): string[] {
-        const times: string[] = [];
-        const stepMinutes = this.options.step;
-
-        for (let hour = 0; hour < 24; hour++) {
-            for (let minute = 0; minute < 60; minute += stepMinutes) {
-                const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-
-                if (this.isTimeInRange(timeString)) {
-                    times.push(timeString);
-                }
-            }
-        }
-
-        return times;
-    }
-
     private isTimeInRange(time: string): boolean {
         if (!this.options.minTime && !this.options.maxTime) {
             return true;
         }
 
-        const timeMinutes = this.timeToMinutes(time);
+        const range = {
+            start: this.options.minTime || '00:00',
+            end: this.options.maxTime || '23:59'
+        };
 
-        if (this.options.minTime) {
-            const minMinutes = this.timeToMinutes(this.options.minTime);
-            if (timeMinutes < minMinutes) return false;
-        }
-
-        if (this.options.maxTime) {
-            const maxMinutes = this.timeToMinutes(this.options.maxTime);
-            if (timeMinutes > maxMinutes) return false;
-        }
-
-        return true;
-    }
-
-    private timeToMinutes(time: string): number {
-        const [hours, minutes] = time.split(':').map(Number);
-        return hours * 60 + minutes;
-    }
-
-    private formatTime(time: string): string {
-        if (!time) return '';
-
-        const [hours, minutes] = time.split(':').map(Number);
-
-        if (this.options.format === '12h') {
-            const period = hours >= 12 ? 'PM' : 'AM';
-            const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-            return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
-        }
-
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-    }
-
-    private parseTime(timeString: string): string {
-        if (!timeString) return '';
-
-        // Handle 12h format
-        if (timeString.includes('AM') || timeString.includes('PM')) {
-            const [time, period] = timeString.split(' ');
-            const [hours, minutes] = time.split(':').map(Number);
-            let adjustedHours = hours;
-
-            if (period === 'PM' && hours !== 12) {
-                adjustedHours += 12;
-            } else if (period === 'AM' && hours === 12) {
-                adjustedHours = 0;
-            }
-
-            return `${adjustedHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        }
-
-        return timeString;
+        return TimeUtils.isTimeInRange(time, range);
     }
 
     private selectTime(time: string): void {
         this.selectedTime = time;
-        this.element.value = this.formatTime(time);
+        this.element.value = TimeUtils.formatTime(time, this.options.format);
         this.close();
 
         // Update selected option styling
@@ -257,7 +197,7 @@ export class TimePicker {
         });
 
         if (this.options.onChange) {
-            this.options.onChange(time, this.formatTime(time));
+            this.options.onChange(time, TimeUtils.formatTime(time, this.options.format));
         }
 
         // Trigger change event
@@ -385,11 +325,11 @@ export class TimePicker {
     }
 
     public getFormattedValue(): string {
-        return this.formatTime(this.selectedTime);
+        return TimeUtils.formatTime(this.selectedTime, this.options.format);
     }
 
     public setValue(time: string): void {
-        const parsedTime = this.parseTime(time);
+        const parsedTime = TimeUtils.parseTime(time);
         if (this.isTimeInRange(parsedTime)) {
             this.selectTime(parsedTime);
         } else {
@@ -447,56 +387,23 @@ export class TimePicker {
         this.element.classList.remove('time-picker-input');
         this.element.removeAttribute('readonly');
         this.element.removeAttribute('aria-expanded');
-
-        // Remove event listeners
-        // Note: In a production environment, you'd want to store references to bound functions
-        // to properly remove event listeners. For simplicity, we're relying on element removal.
     }
 
-    // Static utility methods
+    // Static utility methods - now delegate to TimeUtils
     public static convertTo24Hour(time12h: string): string {
-        if (!time12h) return '';
-
-        const match = time12h.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-        if (!match) return time12h;
-
-        const [, hoursStr, minutes, period] = match;
-        let hours = parseInt(hoursStr, 10);
-
-        if (period.toUpperCase() === 'PM' && hours !== 12) {
-            hours += 12;
-        } else if (period.toUpperCase() === 'AM' && hours === 12) {
-            hours = 0;
-        }
-
-        return `${hours.toString().padStart(2, '0')}:${minutes}`;
+        return TimeUtils.convertTo24Hour(time12h);
     }
 
     public static convertTo12Hour(time24h: string): string {
-        if (!time24h) return '';
-
-        const [hours, minutes] = time24h.split(':').map(Number);
-        const period = hours >= 12 ? 'PM' : 'AM';
-        const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-
-        return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+        return TimeUtils.convertTo12Hour(time24h);
     }
 
     public static isValidTime(time: string, format: TimeFormat = '24h'): boolean {
-        if (!time) return false;
-
-        if (format === '12h') {
-            return /^(1[0-2]|[1-9]):([0-5][0-9])\s*(AM|PM)$/i.test(time);
-        } else {
-            return /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/.test(time);
-        }
+        return TimeUtils.validateTime(time, format).isValid;
     }
 
     public static compareTime(time1: string, time2: string): number {
-        const minutes1 = TimePicker.prototype.timeToMinutes.call({ timeToMinutes: TimePicker.prototype.timeToMinutes }, time1);
-        const minutes2 = TimePicker.prototype.timeToMinutes.call({ timeToMinutes: TimePicker.prototype.timeToMinutes }, time2);
-
-        return minutes1 - minutes2;
+        return TimeUtils.compareTime(time1, time2);
     }
 }
 
