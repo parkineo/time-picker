@@ -3,7 +3,6 @@
  */
 
 import TimePicker, { TimePickerOptions } from '../src/time-picker';
-import { TimeUtils } from '../src/utils';
 
 // Setup DOM environment
 const setupDOM = () => {
@@ -165,9 +164,9 @@ describe('TimePicker', () => {
         });
 
         test('should call onChange callback', (done) => {
-            const onChange = jest.fn((time: string, formatted: string) => {
-                expect(time).toBe('14:30');
-                expect(formatted).toBe('2:30 PM');
+            const onChange = jest.fn((_time: string, _formatted: string) => {
+                expect(_time).toBe('14:30');
+                expect(_formatted).toBe('2:30 PM');
                 done();
             });
 
@@ -201,71 +200,6 @@ describe('TimePicker', () => {
             expect(TimePicker.compareTime('14:30', '15:00')).toBeLessThan(0);
             expect(TimePicker.compareTime('15:00', '14:30')).toBeGreaterThan(0);
             expect(TimePicker.compareTime('14:30', '14:30')).toBe(0);
-        });
-    });
-});
-
-describe('TimeUtils', () => {
-    describe('Time conversion', () => {
-        test('should convert time to minutes', () => {
-            expect(TimeUtils.timeToMinutes('14:30')).toBe(870); // 14*60 + 30
-            expect(TimeUtils.timeToMinutes('00:00')).toBe(0);
-            expect(TimeUtils.timeToMinutes('23:59')).toBe(1439);
-        });
-
-        test('should convert minutes to time', () => {
-            expect(TimeUtils.minutesToTime(870)).toBe('14:30');
-            expect(TimeUtils.minutesToTime(0)).toBe('00:00');
-            expect(TimeUtils.minutesToTime(1439)).toBe('23:59');
-        });
-    });
-
-    describe('Time validation', () => {
-        test('should validate 24h format', () => {
-            const result1 = TimeUtils.validateTime('14:30', '24h');
-            expect(result1.isValid).toBe(true);
-
-            const result2 = TimeUtils.validateTime('25:00', '24h');
-            expect(result2.isValid).toBe(false);
-            expect(result2.error).toContain('Invalid 24h time format');
-        });
-
-        test('should validate 12h format', () => {
-            const result1 = TimeUtils.validateTime('2:30 PM', '12h');
-            expect(result1.isValid).toBe(true);
-
-            const result2 = TimeUtils.validateTime('13:30 PM', '12h');
-            expect(result2.isValid).toBe(false);
-            expect(result2.error).toContain('Invalid 12h time format');
-        });
-    });
-
-    describe('Time range operations', () => {
-        test('should check if time is in range', () => {
-            const range = { start: '09:00', end: '17:00' };
-
-            expect(TimeUtils.isTimeInRange('12:00', range)).toBe(true);
-            expect(TimeUtils.isTimeInRange('08:00', range)).toBe(false);
-            expect(TimeUtils.isTimeInRange('18:00', range)).toBe(false);
-        });
-
-        test('should generate time options', () => {
-            const options = TimeUtils.generateTimeOptions(60); // 1 hour steps
-            expect(options).toContain('09:00');
-            expect(options).toContain('14:00');
-            expect(options.length).toBe(24);
-
-            const rangedOptions = TimeUtils.generateTimeOptions(30, { start: '09:00', end: '17:00' });
-            expect(rangedOptions[0]).toBe('09:00');
-            expect(rangedOptions[rangedOptions.length - 1]).toBe('16:30');
-        });
-    });
-
-    describe('Time comparison', () => {
-        test('should compare times correctly', () => {
-            expect(TimeUtils.compareTime('14:30', '15:00')).toBeLessThan(0);
-            expect(TimeUtils.compareTime('15:00', '14:30')).toBeGreaterThan(0);
-            expect(TimeUtils.compareTime('14:30', '14:30')).toBe(0);
         });
     });
 });

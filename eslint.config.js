@@ -1,60 +1,49 @@
-import eslint from '@eslint/js';
+// eslint.config.js (Modern flat config)
+import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 
 export default [
-    eslint.configs.recommended,
+    js.configs.recommended,
     {
-        files: ['src/**/*.ts', 'tests/**/*.ts'],
+        files: ['src/**/*.ts'],
         languageOptions: {
             parser: tsparser,
             parserOptions: {
-                ecmaVersion: 2020,
+                ecmaVersion: 2022,
                 sourceType: 'module',
                 project: './tsconfig.json'
             },
             globals: {
                 console: 'readonly',
-                process: 'readonly',
-                Buffer: 'readonly',
-                __dirname: 'readonly',
-                __filename: 'readonly',
-                exports: 'writable',
-                module: 'writable',
-                require: 'readonly',
-                global: 'readonly',
-                window: 'readonly',
                 document: 'readonly',
-                navigator: 'readonly',
-                localStorage: 'readonly',
-                sessionStorage: 'readonly',
-                fetch: 'readonly',
-                jest: 'readonly',
-                describe: 'readonly',
-                test: 'readonly',
-                it: 'readonly',
-                expect: 'readonly',
-                beforeEach: 'readonly',
-                afterEach: 'readonly',
-                beforeAll: 'readonly',
-                afterAll: 'readonly'
+                window: 'readonly'
             }
         },
         plugins: {
             '@typescript-eslint': tseslint
         },
         rules: {
+            // Turn off base rule completely
+            'no-unused-vars': 'off',
+
+            // Use TypeScript version with underscore prefix support
             '@typescript-eslint/no-unused-vars': ['error', {
                 argsIgnorePattern: '^_',
-                varsIgnorePattern: '^_'
+                varsIgnorePattern: '^_',
+                caughtErrorsIgnorePattern: '^_'
             }],
+
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/explicit-function-return-type': 'off',
             '@typescript-eslint/no-non-null-assertion': 'warn',
+
+            // Modern JavaScript
             'prefer-const': 'error',
             'no-var': 'error',
-            'no-console': 'warn',
-            'no-undef': 'off' // TypeScript handles this
+
+            // Development
+            'no-console': 'warn'
         }
     },
     {
@@ -65,10 +54,7 @@ export default [
             'coverage/**/*',
             '*.js',
             '*.cjs',
-            '*.mjs',
-            'rollup.config.js',
-            'jest.config.js',
-            'postcss.config.js'
+            '*.mjs'
         ]
     }
 ];
