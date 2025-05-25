@@ -34,13 +34,15 @@ export class TimePicker {
     private selectedTime: string = '';
 
     constructor(selector: string | HTMLInputElement, options: TimePickerOptions = {}) {
-        this.element = typeof selector === 'string'
-            ? document.querySelector<HTMLInputElement>(selector)!
+
+        const element = typeof selector === 'string'
+            ? document.querySelector<HTMLInputElement>(selector)
             : selector;
 
-        if (!this.element) {
+        if (!element) {
             throw new Error('TimePicker: Element not found');
         }
+        this.element = element;
 
         if (this.element.tagName !== 'INPUT') {
             throw new Error('TimePicker: Element must be an input element');

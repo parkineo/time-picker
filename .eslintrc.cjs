@@ -1,4 +1,4 @@
-// .eslintrc.cjs (CommonJS format)
+// .eslintrc.cjs (Fixed version)
 module.exports = {
     parser: '@typescript-eslint/parser',
     extends: [
@@ -18,12 +18,13 @@ module.exports = {
         jest: true
     },
     rules: {
-        // Allow unused vars if they start with underscore
+        // Fix: Turn off base rule and use TypeScript version
+        'no-unused-vars': 'on',
         '@typescript-eslint/no-unused-vars': ['error', {
             argsIgnorePattern: '^_',
-            varsIgnorePattern: '^_'
+            varsIgnorePattern: '^_',
+            caughtErrorsIgnorePattern: '^_'
         }],
-        'no-unused-vars': 'off', // Let TypeScript handle this
 
         '@typescript-eslint/no-explicit-any': 'warn',
         '@typescript-eslint/explicit-function-return-type': 'off',

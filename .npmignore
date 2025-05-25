@@ -1,0 +1,20 @@
+# Development files
+.eslintrc.cjs
+.prettierrc
+tsconfig.json
+rollup.config.js
+jest.config.js
+
+# Source maps and coverage
+coverage/
+*.map
+
+# Examples and tests
+examples/
+src/**/*.test.ts
+src/**/*.spec.ts
+
+# IDE and system files
+.vscode/
+.DS_Store
+Thumbs.db
