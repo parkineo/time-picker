@@ -15,6 +15,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": true,
+    "strictPropertyInitialization": false,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
