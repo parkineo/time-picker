@@ -6,43 +6,68 @@
   "module": "dist/time-picker.esm.js",
   "types": "dist/time-picker.d.ts",
   "unpkg": "dist/time-picker.min.js",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
-    "build": "npm run build:ts && npm run build:bundle && npm run build:css",
-    "build:ts": "tsc",
+    "build": "npm run clean && npm run build:types && npm run build:bundle && npm run build:css",
+    "build:types": "tsc --declaration --emitDeclarationOnly",
     "build:bundle": "rollup -c",
-    "build:css": "postcss src/time-picker.css -o dist/time-picker.css",
-    "build:minify": "terser dist/time-picker.js -o dist/time-picker.min.js --source-map",
-    "dev": "tsc --watch",
+    "build:css": "postcss src/time-picker.css -o dist/time-picker.css && postcss src/time-picker.css -o dist/time-picker.min.css --env minify",
+    "clean": "rimraf dist",
+    "dev": "rollup -c -w",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
-    "serve": "http-server examples -p 8080",
+    "serve": "http-server examples -p 8880",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "time", "picker", "timepicker", "vanilla-js", "typescript", "php",
-    "javascript", "web-component", "form", "input"
+    "time",
+    "picker",
+    "timepicker",
+    "vanilla-js",
+    "typescript",
+    "php",
+    "javascript",
+    "web-component",
+    "form",
+    "input"
   ],
   "author": "parkineo",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "rollup": "^3.0.0",
-    "@rollup/plugin-typescript": "^11.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
     "@rollup/plugin-terser": "^0.4.0",
-    "terser": "^5.0.0",
-    "postcss": "^8.0.0",
-    "postcss-cli": "^10.0.0",
-    "http-server": "^14.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "cssnano": "^6.0.0",
     "eslint": "^8.0.0",
+    "http-server": "^14.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "postcss": "^8.0.0",
+    "postcss-cli": "^10.0.0",
     "prettier": "^3.0.0",
-    "jest": "^29.0.0",
-    "@types/jest": "^29.0.0",
-    "ts-jest": "^29.0.0"
+    "rimraf": "^5.0.0",
+    "rollup": "^3.0.0",
+    "ts-jest": "^29.3.4",
+    "tslib": "^2.8.1",
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/parkineo/time-picker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/parkineo/time-picker/issues"
+  },
+  "homepage": "https://github.com/parkineo/time-picker#readme",
+  "dependencies": {
+    "@parkineo/time-picker": "^1.0.0"
   }
 }

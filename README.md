@@ -16,8 +16,8 @@ A lightweight, framework-agnostic time picker component that works with vanilla 
 
 ### CDN Usage
 ```html
-<link rel="stylesheet" href="https://unpkg.com/@w6d-io/time-picker/dist/time-picker.min.css">
-<script src="https://unpkg.com/@w6d-io/time-picker/dist/time-picker.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@parkineo/time-picker/dist/time-picker.min.css">
+<script src="https://unpkg.com/@parkineo/time-picker/dist/time-picker.min.js"></script>
 
 <input type="text" id="time-input" placeholder="Select time">
 
@@ -31,7 +31,7 @@ new TimePicker('#time-input', {
 ### NPM Installation
 
 ```bash
-npm install @w6d-io/time-picker
+npm install @parkineo/time-picker
 ```
 
 ### PHP Integration
@@ -40,7 +40,7 @@ npm install @w6d-io/time-picker
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="node_modules/@w6d-io/time-picker/dist/time-picker.css">
+    <link rel="stylesheet" href="node_modules/@parkineo/time-picker/dist/time-picker.css">
 </head>
 <body>
     <form method="POST" action="submit.php">
@@ -48,7 +48,7 @@ npm install @w6d-io/time-picker
         <input type="submit" value="Save">
     </form>
     
-    <script src="node_modules/@w6d-io/time-picker/dist/time-picker.js"></script>
+    <script src="node_modules/@parkineo/time-picker/dist/time-picker.js"></script>
     <script>
         new TimePicker('#meeting-time', {
             format: '12h',
@@ -142,7 +142,7 @@ new TimePicker(selector, {
 ### Development
 
 ```bash
-git clone https://github.com/w6d-io/time-picker.git
+git clone https://github.com/parkineo/time-picker.git
 cd time-picker
 npm install
 npm run dev
@@ -157,4 +157,4 @@ Open http://localhost:8080 to see examples.
 * WordPress Plugin
 
 ### License
-MIT © w6d-io
+MIT © parkineo
