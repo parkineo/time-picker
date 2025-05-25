@@ -2,14 +2,12 @@
   "name": "@parkineo/time-picker",
   "version": "1.0.0",
   "description": "A lightweight, framework-agnostic time picker component for web applications",
+  "type": "module",
   "main": "dist/time-picker.js",
   "module": "dist/time-picker.esm.js",
   "types": "dist/time-picker.d.ts",
   "unpkg": "dist/time-picker.min.js",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "scripts": {
     "build": "npm run clean && npm run build:types && npm run build:bundle && npm run build:css",
     "build:types": "tsc --declaration --emitDeclarationOnly",
@@ -21,7 +19,9 @@
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts",
-    "serve": "http-server examples -p 8880",
+    "serve": "http-server . -p 8880 -c-1 --cors",
+    "serve:examples": "http-server examples -p 8880 -c-1",
+    "serve:dev": "npm run build && npm run serve",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
