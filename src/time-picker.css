@@ -10,14 +10,14 @@
     position: relative;
     background-color: #ffffff;
     border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 8px 32px 8px 12px;
+    border-radius: 4px;
+    padding: 8px 12px;
     font-size: 14px;
     line-height: 1.5;
     color: #374151;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    min-width: 120px;
+    max-width: 120px;
 }
 
 .time-picker-input:hover {

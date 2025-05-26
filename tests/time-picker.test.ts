@@ -201,5 +201,9 @@ describe('TimePicker', () => {
             expect(TimePicker.compareTime('15:00', '14:30')).toBeGreaterThan(0);
             expect(TimePicker.compareTime('14:30', '14:30')).toBe(0);
         });
+
+        test( 'should not be opened', () => {
+            expect(picker.isOpened()).toBe(false);
+        })
     });
 });

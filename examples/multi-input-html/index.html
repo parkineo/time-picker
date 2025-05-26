@@ -700,14 +700,14 @@
         // Try to load CSS
         const cssLink = document.createElement('link');
         cssLink.rel = 'stylesheet';
-        cssLink.href = '../dist/time-picker.css';
+        cssLink.href = '../../dist/time-picker.css';
         cssLink.onload = () => info.push('✅ CSS file found');
         cssLink.onerror = () => info.push('❌ CSS file not found');
         document.head.appendChild(cssLink);
 
         // Check if JS file exists by trying to create a script element
         const script = document.createElement('script');
-        script.src = '../dist/time-picker.js';
+        script.src = '../../dist/time-picker.js';
         script.onload = () => {
             info.push('✅ JS file found');
             updateDebugInfo(info);
@@ -733,7 +733,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Try to load the built version first
         const script = document.createElement('script');
-        script.src = '../dist/time-picker.js';
+        script.src = '../../dist/time-picker.js';
         script.onload = initializeTimePicker;
         script.onerror = initializeTimePicker; // Fallback if file doesn't exist
         document.head.appendChild(script);

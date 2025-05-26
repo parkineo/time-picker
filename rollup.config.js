@@ -19,12 +19,12 @@ export default [
             })
         ]
     },
-    // UMD build
+    // IIFE build
     {
         input: 'src/time-picker.ts',
         output: {
             file: 'dist/time-picker.js',
-            format: 'umd',
+            format: 'iife',
             name: 'TimePicker',
             sourcemap: true
         },
@@ -41,7 +41,7 @@ export default [
         input: 'src/time-picker.ts',
         output: {
             file: 'dist/time-picker.min.js',
-            format: 'umd',
+            format: 'iife',
             name: 'TimePicker',
             sourcemap: true
         },

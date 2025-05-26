@@ -18,22 +18,16 @@ export interface TimePickerOptions {
     onChange?: ((_time: string, _formattedTime: string) => void) | null;
 }
 
-export interface TimePickerPosition {
-    top: number;
-    left: number;
-    width: number;
-}
 
 export type TimeFormat = '12h' | '24h';
-export type TimeString = string; // Format: "HH:mm" or "h:mm AM/PM"
 
 export class TimePicker {
     private element: HTMLInputElement;
     private options: Required<TimePickerOptions>;
+    private selectedTime: string = '';
     private dropdown!: HTMLDivElement;
     private timeList!: HTMLDivElement;
     private isOpen: boolean = false;
-    private selectedTime: string = '';
 
     constructor(selector: string | HTMLInputElement, options: TimePickerOptions = {}) {
         const element = typeof selector === 'string'
@@ -51,10 +45,10 @@ export class TimePicker {
 
         this.options = {
             format: '12h',
+            step: 15,
             defaultTime: '',
             minTime: null,
             maxTime: null,
-            step: 15,
             placeholder: 'Select time',
             disabled: false,
             onChange: null,
@@ -70,15 +64,16 @@ export class TimePicker {
         this.createDropdown();
         this.bindEvents();
 
-        if (this.selectedTime) {
-            this.element.value = TimeUtils.formatTime(this.selectedTime, this.options.format);
-        }
+        // if (this.selectedTime) {
+        //     this.element.value = TimeUtils.formatTime(this.selectedTime, this.options.format);
+        //     // Ensure the selected option is marked in the dropdown
+        //     this.updateSelectedOption(this.selectedTime);
+        // }
     }
-
     private setupElement(): void {
+        this.element.classList.add('time-picker-input');
         this.element.setAttribute('readonly', 'true');
         this.element.setAttribute('placeholder', this.options.placeholder);
-        this.element.classList.add('time-picker-input');
 
         if (this.options.disabled) {
             this.element.setAttribute('disabled', 'true');
@@ -89,12 +84,14 @@ export class TimePicker {
         this.dropdown = document.createElement('div');
         this.dropdown.className = 'time-picker-dropdown';
         this.dropdown.style.display = 'none';
-        this.dropdown.setAttribute('role', 'listbox');
-        this.dropdown.setAttribute('aria-expanded', 'false');
+
+        // this.dropdown.setAttribute('role', 'listbox');
+        // this.dropdown.setAttribute('aria-expanded', 'false');
 
         this.timeList = document.createElement('div');
         this.timeList.className = 'time-picker-list';
-        this.timeList.setAttribute('role', 'list');
+
+        // this.timeList.setAttribute('role', 'list');
 
         this.populateTimeList();
         this.dropdown.appendChild(this.timeList);
@@ -119,16 +116,17 @@ export class TimePicker {
             timeOption.className = 'time-picker-option';
             timeOption.textContent = TimeUtils.formatTime(time, this.options.format);
             timeOption.dataset.time = time;
-            timeOption.setAttribute('role', 'option');
-            timeOption.setAttribute('tabindex', '-1');
+
+            // timeOption.setAttribute('role', 'option');
+            // timeOption.setAttribute('tabindex', '-1');
 
             timeOption.addEventListener('click', () => {
                 this.selectTime(time);
             });
 
-            timeOption.addEventListener('keydown', (e: KeyboardEvent) => {
-                this.handleOptionKeydown(e, time);
-            });
+            // timeOption.addEventListener('keydown', (e: KeyboardEvent) => {
+            //     this.handleOptionKeydown(e, time);
+            // });
 
             this.timeList.appendChild(timeOption);
         });
@@ -188,86 +186,73 @@ export class TimePicker {
         this.element.value = TimeUtils.formatTime(time, this.options.format);
         this.close();
 
-        // Update selected option styling
-        this.timeList.querySelectorAll('.time-picker-option').forEach((option: Element) => {
-            option.classList.remove('selected');
-            if ((option as HTMLElement).dataset.time === time) {
-                option.classList.add('selected');
-            }
-        });
+        // Use the helper method
+        this.updateSelectedOption(time);
 
         if (this.options.onChange) {
             this.options.onChange(time, TimeUtils.formatTime(time, this.options.format));
         }
 
         // Trigger change event
-        const event = new Event('change', {bubbles: true});
+        const event = new Event('change', { bubbles: true });
         this.element.dispatchEvent(event);
     }
 
     private bindEvents(): void {
         this.element.addEventListener('click', (e: Event) => {
-            e.preventDefault();
+            console.log('Input clicked, isOpen:', this.isOpen);
             e.stopPropagation();
+            e.preventDefault();
             if (!this.options.disabled) {
                 this.toggle();
             }
         });
 
-        this.element.addEventListener('focus', () => {
-            if (!this.options.disabled) {
-                this.open();
-            }
-        });
-
-        this.element.addEventListener('keydown', (e: KeyboardEvent) => {
-            this.handleInputKeydown(e);
-        });
+        // this.element.addEventListener('focus', () => {
+        //     console.log('Input focused, isOpen:', this.isOpen);
+        //     if (!this.options.disabled) {
+        //         this.open();
+        //     }
+        // });
 
         // Close dropdown when clicking outside
         document.addEventListener('click', (e: Event) => {
             const target = e.target as Element;
-            setTimeout(() => {
-                if (!this.element.contains(target) && !this.dropdown.contains(target)) {
-                    this.close();
-                }
-            }, 0);
+            const isInputClick = this.element.contains(target);
+            const isDropdownClick = this.dropdown.contains(target);
+
+            console.log('Document clicked:', {
+                isOpen: this.isOpen,
+                isInputClick,
+                isDropdownClick,
+                target: target.tagName
+            });
+
+            if (!isInputClick && !isDropdownClick) {
+                console.log('Closing dropdown from document click');
+                this.close();
+            }
         });
     }
 
-    private handleInputKeydown(e: KeyboardEvent): void {
-        switch (e.key) {
-            case 'Escape':
-                this.close();
-                break;
-            case 'Enter':
-            case ' ':
-                e.preventDefault();
-                this.toggle();
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                if (!this.isOpen) {
-                    this.open();
-                } else {
-                    const firstOption = this.timeList.querySelector('.time-picker-option') as HTMLElement;
-                    if (firstOption) {
-                        firstOption.focus();
-                    }
-                }
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                if (!this.isOpen) {
-                    this.open();
-                } else {
-                    const options = this.timeList.querySelectorAll('.time-picker-option');
-                    const lastOption = options[options.length - 1] as HTMLElement;
-                    if (lastOption) {
-                        lastOption.focus();
-                    }
-                }
-                break;
+    private scrollToSelected(): void {
+        const selectedOption = this.timeList.querySelector('.selected') as HTMLElement;
+        if (selectedOption) {
+            // Use scrollIntoView with better options for consistent behavior
+            selectedOption.scrollIntoView({
+                block: 'center',  // Center the selected option in the view
+                // behavior: 'auto'  // Immediate scroll, not smooth
+            });
+        } else if (this.selectedTime) {
+            // If no option is marked as selected, but we have a selectedTime, find and scroll to it
+            const option = this.timeList.querySelector(`[data-time="${this.selectedTime}"]`) as HTMLElement;
+            if (option) {
+                option.classList.add('selected');
+                option.scrollIntoView({
+                    block: 'center',
+                    behavior: 'auto'
+                });
+            }
         }
     }
 
@@ -279,27 +264,22 @@ export class TimePicker {
         this.dropdown.setAttribute('aria-expanded', 'true');
         this.positionDropdown();
 
-        // Scroll to selected time
-        const selectedOption = this.timeList.querySelector('.selected') as HTMLElement;
-        if (selectedOption) {
-            selectedOption.scrollIntoView({block: 'nearest'});
-        }
+        // Always scroll to selected time if one exists
+        this.scrollToSelected();
     }
 
     private close(): void {
+        console.log('Closing dropdown, current state:', this.isOpen);
         if (!this.isOpen) return;
 
         this.isOpen = false;
         this.dropdown.style.display = 'none';
         this.dropdown.setAttribute('aria-expanded', 'false');
+        console.log('Dropdown closed');
     }
 
     private toggle(): void {
-        if (this.isOpen) {
-            this.close();
-        } else {
-            this.open();
-        }
+        this.isOpen ? this.close() : this.open();
     }
 
     private positionDropdown(): void {
@@ -310,7 +290,7 @@ export class TimePicker {
         // Position dropdown below input by default
         let top = rect.bottom + window.scrollY;
 
-        // If dropdown would go off screen, position above input
+        // If dropdown goes off the screen, position above input
         if (rect.bottom + dropdownHeight > viewportHeight) {
             top = rect.top + window.scrollY - dropdownHeight;
         }
@@ -320,6 +300,15 @@ export class TimePicker {
         this.dropdown.style.left = `${rect.left + window.scrollX}px`;
         this.dropdown.style.width = `${rect.width}px`;
         this.dropdown.style.zIndex = '1000';
+    }
+
+    private updateSelectedOption(time: string): void {
+        this.timeList.querySelectorAll('.time-picker-option').forEach((option: Element) => {
+            option.classList.remove('selected');
+            if ((option as HTMLElement).dataset.time === time) {
+                option.classList.add('selected');
+            }
+        });
     }
 
     // Public API methods
@@ -334,12 +323,23 @@ export class TimePicker {
     public setValue(time: string): void {
         const parsedTime = TimeUtils.parseTime(time);
         if (this.isTimeInRange(parsedTime)) {
-            this.selectTime(parsedTime);
+            this.selectedTime = parsedTime;
+            this.element.value = TimeUtils.formatTime(parsedTime, this.options.format);
+
+            // Update the visual selection in dropdown
+            this.updateSelectedOption(parsedTime);
+
+            // Trigger change event
+            const event = new Event('change', { bubbles: true });
+            this.element.dispatchEvent(event);
+
+            if (this.options.onChange) {
+                this.options.onChange(parsedTime, TimeUtils.formatTime(parsedTime, this.options.format));
+            }
         } else {
             throw new Error(`TimePicker: Time "${time}" is outside the allowed range`);
         }
     }
-
     public enable(): void {
         this.options.disabled = false;
         this.element.removeAttribute('disabled');
@@ -414,7 +414,7 @@ export class TimePicker {
 document.addEventListener('DOMContentLoaded', function () {
     const elements = document.querySelectorAll<HTMLInputElement>('[data-time-picker]');
     elements.forEach((element: HTMLInputElement) => {
-        const format = (element.dataset.format as TimeFormat) || '12h';
+        const format = (element.dataset.format as TimeFormat) || '24h';
         const defaultTime = element.dataset.defaultTime || '';
         const minTime = element.dataset.minTime || null;
         const maxTime = element.dataset.maxTime || null;
