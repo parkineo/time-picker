@@ -1,6 +1,6 @@
 /**
  * TimePicker - A lightweight, framework-agnostic time picker component
- * @version 1.2.2
+ * @version 1.2.3
  * @author parkineo
  * @license MIT
  */

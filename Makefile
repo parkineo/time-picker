@@ -11,7 +11,6 @@ EXAMPLES_DIR = examples
 COVERAGE_DIR = coverage
 
 # Files to update with version
-VERSION_FILES = src/time-picker.ts src/types.ts src/utils.ts
 DIST_VERSION_FILES = dist/time-picker.js dist/time-picker.esm.js dist/time-picker.d.ts
 
 # Colors for output
@@ -28,12 +27,10 @@ BOLD = \033[1m
 .PHONY: update-version-comments
 update-version-comments: ## Update version in source file comments
 	@echo "$(GREEN)Updating version comments to v$(VERSION)...$(NC)"
-	@for file in $(VERSION_FILES); do \
-		if [ -f "$file" ]; then \
-			echo "  Updating $file"; \
-			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$file" && rm "$file.bak" || rm -f "$file.bak"; \
-		fi; \
-	done
+	@if [ -f "$(SRC_DIR)/time-picker.ts" ]; then \
+		echo "  Updating $(SRC_DIR)/time-picker.ts"; \
+		sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(SRC_DIR)/time-picker.ts" && rm "$(SRC_DIR)/time-picker.ts.bak" || rm -f "$(SRC_DIR)/time-picker.ts.bak"; \
+	fi
 	@if [ -f "$(SRC_DIR)/time-picker.css" ]; then \
 		echo "  Updating $(SRC_DIR)/time-picker.css"; \
 		sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(SRC_DIR)/time-picker.css" && rm "$(SRC_DIR)/time-picker.css.bak" || rm -f "$(SRC_DIR)/time-picker.css.bak"; \
@@ -56,10 +53,6 @@ update-dist-version: ## Update version in built dist files
 			echo "  Updating $(DIST_DIR)/time-picker.css"; \
 			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(DIST_DIR)/time-picker.css" && rm "$(DIST_DIR)/time-picker.css.bak" || rm -f "$(DIST_DIR)/time-picker.css.bak"; \
 		fi; \
-		if [ -f "$(DIST_DIR)/time-picker.min.css" ]; then \
-			echo "  Updating $(DIST_DIR)/time-picker.min.css"; \
-			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(DIST_DIR)/time-picker.min.css" && rm "$(DIST_DIR)/time-picker.min.css.bak" || rm -f "$(DIST_DIR)/time-picker.min.css.bak"; \
-		fi; \
 		echo "$(GREEN)✓ Dist version updated to v$(VERSION)$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠ Dist directory not found, skipping dist version update$(NC)"; \
@@ -71,21 +64,21 @@ update-all-versions: update-version-comments update-dist-version ## Update versi
 .PHONY: version-patch
 version-patch: check-deps ## Bump patch version (1.0.0 -> 1.0.1)
 	@echo "$(GREEN)Bumping patch version...$(NC)"
-	npm version patch
+	npm version patch --no-git-tag-version]
 	@$(MAKE) update-version-comments
 	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
 
 .PHONY: version-minor
 version-minor: check-deps ## Bump minor version (1.0.0 -> 1.1.0)
 	@echo "$(GREEN)Bumping minor version...$(NC)"
-	npm version minor
+	npm version minor --no-git-tag-version]
 	@$(MAKE) update-version-comments
 	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
 
 .PHONY: version-major
 version-major: check-deps ## Bump major version (1.0.0 -> 2.0.0)
 	@echo "$(GREEN)Bumping major version...$(NC)"
-	npm version major
+	npm version major --no-git-tag-version]
 	@$(MAKE) update-version-comments
 	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
 
@@ -392,7 +385,10 @@ git-status: ## Show git status
 .PHONY: git-tag
 git-tag: ## Create git tag for current version
 	@echo "$(GREEN)Creating git tag v$(VERSION)...$(NC)"
+	git commit -am "Release v$(VERSION)"
+	git tag v$(VERSION)
 	git push origin v$(VERSION)
+	git push origin --tags
 	@echo "$(GREEN)✓ Tag v$(VERSION) created and pushed$(NC)"
 
 # Release targets
