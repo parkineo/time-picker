@@ -1,23 +1,32 @@
 /**
- * TimePicker CSS Styles
+ * TimePicker CSS Styles with Embedded Clock Icon
  * @version 1.0.0
  * @author parkineo
  * @license MIT
+ *
+ * No external dependencies required - clock icon embedded as SVG
  */
+
+/* Container wrapper for input + icon */
+.time-picker-container {
+    position: relative;
+    display: inline-block;
+    max-width: 110px;
+}
 
 /* Input Styles */
 .time-picker-input {
-    position: relative;
+    width: 100%;
     background-color: #ffffff;
     border: 1px solid #d1d5db;
     border-radius: 4px;
-    padding: 8px 12px;
+    padding: 8px 12px 8px 32px; /* Left padding for icon */
     font-size: 14px;
     line-height: 1.5;
     color: #374151;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    max-width: 120px;
+    box-sizing: border-box;
 }
 
 .time-picker-input:hover {
@@ -40,15 +49,112 @@
     color: #9ca3af;
 }
 
-/* Add clock icon to input */
-.time-picker-input::after {
-    content: '🕐';
+/* Method 1: SVG Clock Icon as CSS Background */
+.time-picker-icon {
     position: absolute;
-    right: 8px;
+    left: 8px;
     top: 50%;
     transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
     pointer-events: none;
-    font-size: 14px;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12,6 12,12 16,14'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.time-picker-input:focus ~ .time-picker-icon,
+.time-picker-input:hover ~ .time-picker-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12,6 12,12 16,14'/%3E%3C/svg%3E");
+}
+
+.time-picker-input:disabled ~ .time-picker-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12,6 12,12 16,14'/%3E%3C/svg%3E");
+}
+
+/* Alternative Method 2: CSS-only clock using borders and pseudo-elements */
+.time-picker-icon-css {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+    z-index: 1;
+    border: 2px solid #6b7280;
+    border-radius: 50%;
+}
+
+.time-picker-icon-css::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 5px;
+    background-color: #6b7280;
+}
+
+.time-picker-icon-css::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 1px;
+    background-color: #6b7280;
+}
+
+.time-picker-input:focus ~ .time-picker-icon-css,
+.time-picker-input:hover ~ .time-picker-icon-css {
+    border-color: #3b82f6;
+}
+
+.time-picker-input:focus ~ .time-picker-icon-css::before,
+.time-picker-input:hover ~ .time-picker-icon-css::before,
+.time-picker-input:focus ~ .time-picker-icon-css::after,
+.time-picker-input:hover ~ .time-picker-icon-css::after {
+    background-color: #3b82f6;
+}
+
+.time-picker-input:disabled ~ .time-picker-icon-css {
+    border-color: #9ca3af;
+}
+
+.time-picker-input:disabled ~ .time-picker-icon-css::before,
+.time-picker-input:disabled ~ .time-picker-icon-css::after {
+    background-color: #9ca3af;
+}
+
+/* Alternative Method 3: Unicode clock character */
+.time-picker-icon-unicode {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 1;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.time-picker-icon-unicode::before {
+    content: '🕐'; /* or use ⏰ ⏱ ⏲ */
+}
+
+.time-picker-input:focus ~ .time-picker-icon-unicode,
+.time-picker-input:hover ~ .time-picker-icon-unicode {
+    color: #3b82f6;
+}
+
+.time-picker-input:disabled ~ .time-picker-icon-unicode {
+    color: #9ca3af;
 }
 
 /* Dropdown Styles */
@@ -136,6 +242,52 @@
         color: #6b7280;
     }
 
+    /* Dark theme SVG icons */
+    .time-picker-icon {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12,6 12,12 16,14'/%3E%3C/svg%3E");
+    }
+
+    .time-picker-input:focus ~ .time-picker-icon,
+    .time-picker-input:hover ~ .time-picker-icon {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12,6 12,12 16,14'/%3E%3C/svg%3E");
+    }
+
+    .time-picker-input:disabled ~ .time-picker-icon {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12,6 12,12 16,14'/%3E%3C/svg%3E");
+    }
+
+    /* Dark theme CSS icons */
+    .time-picker-icon-css {
+        border-color: #9ca3af;
+    }
+
+    .time-picker-icon-css::before,
+    .time-picker-icon-css::after {
+        background-color: #9ca3af;
+    }
+
+    .time-picker-input:focus ~ .time-picker-icon-css,
+    .time-picker-input:hover ~ .time-picker-icon-css {
+        border-color: #3b82f6;
+    }
+
+    .time-picker-input:focus ~ .time-picker-icon-css::before,
+    .time-picker-input:hover ~ .time-picker-icon-css::before,
+    .time-picker-input:focus ~ .time-picker-icon-css::after,
+    .time-picker-input:hover ~ .time-picker-icon-css::after {
+        background-color: #3b82f6;
+    }
+
+    /* Dark theme unicode icons */
+    .time-picker-icon-unicode {
+        color: #9ca3af;
+    }
+
+    .time-picker-input:focus ~ .time-picker-icon-unicode,
+    .time-picker-input:hover ~ .time-picker-icon-unicode {
+        color: #3b82f6;
+    }
+
     .time-picker-dropdown {
         background-color: #1f2937;
         border-color: #4b5563;
@@ -164,6 +316,10 @@
 
 /* Mobile Responsive */
 @media (max-width: 640px) {
+    .time-picker-container {
+        max-width: 100%;
+    }
+
     .time-picker-dropdown {
         position: fixed !important;
         top: 50% !important;

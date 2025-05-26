@@ -70,6 +70,7 @@ export class TimePicker {
         //     this.updateSelectedOption(this.selectedTime);
         // }
     }
+
     private setupElement(): void {
         this.element.classList.add('time-picker-input');
         this.element.setAttribute('readonly', 'true');
@@ -287,6 +288,7 @@ export class TimePicker {
         const dropdownHeight = this.dropdown.offsetHeight;
         const viewportHeight = window.innerHeight;
 
+        console.log({'bottom': rect.bottom, 'scrollY': window.scrollY});
         // Position dropdown below input by default
         let top = rect.bottom + window.scrollY;
 
@@ -297,7 +299,7 @@ export class TimePicker {
 
         this.dropdown.style.position = 'absolute';
         this.dropdown.style.top = `${top}px`;
-        this.dropdown.style.left = `${rect.left + window.scrollX}px`;
+        // this.dropdown.style.left = `${rect.left + window.scrollX}px`;
         this.dropdown.style.width = `${rect.width}px`;
         this.dropdown.style.zIndex = '1000';
     }
