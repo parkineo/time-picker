@@ -1,6 +1,6 @@
 {
   "name": "@parkineo/time-picker",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A lightweight, framework-agnostic time picker component for web applications",
   "type": "module",
   "main": "dist/time-picker.js",
