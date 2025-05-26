@@ -10,6 +10,9 @@ SRC_DIR = src
 EXAMPLES_DIR = examples
 COVERAGE_DIR = coverage
 
+# Files to update with version
+VERSION_FILES = src/time-picker.ts src/types.ts src/utils.ts
+
 # Colors for output
 GREEN = \033[0;32m
 YELLOW = \033[1;33m
@@ -20,19 +23,65 @@ BOLD = \033[1m
 # Default target
 .DEFAULT_GOAL := help
 
+# Version update targets
+.PHONY: update-version-comments
+update-version-comments: ## Update version in source file comments
+	@echo "$(GREEN)Updating version comments to v$(VERSION)...$(NC)"
+	@for file in $(VERSION_FILES); do \
+		if [ -f "$$file" ]; then \
+			echo "  Updating $$file"; \
+			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$$file" && rm "$$file.bak" || rm -f "$$file.bak"; \
+		fi; \
+	done
+	@if [ -f "$(SRC_DIR)/time-picker.css" ]; then \
+		echo "  Updating $(SRC_DIR)/time-picker.css"; \
+		sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(SRC_DIR)/time-picker.css" && rm "$(SRC_DIR)/time-picker.css.bak" || rm -f "$(SRC_DIR)/time-picker.css.bak"; \
+	fi
+	@echo "$(GREEN)✓ Version comments updated to v$(VERSION)$(NC)"
+
+.PHONY: version-patch
+version-patch: check-deps ## Bump patch version (1.0.0 -> 1.0.1)
+	@echo "$(GREEN)Bumping patch version...$(NC)"
+	npm version patch
+	@$(MAKE) update-version-comments
+	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
+
+.PHONY: version-minor
+version-minor: check-deps ## Bump minor version (1.0.0 -> 1.1.0)
+	@echo "$(GREEN)Bumping minor version...$(NC)"
+	npm version minor
+	@$(MAKE) update-version-comments
+	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
+
+.PHONY: version-major
+version-major: check-deps ## Bump major version (1.0.0 -> 2.0.0)
+	@echo "$(GREEN)Bumping major version...$(NC)"
+	npm version major
+	@$(MAKE) update-version-comments
+	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
+
+# Build targets with version update
+.PHONY: build
+build: check-deps clean update-version-comments ## Build the project (TypeScript + Rollup + CSS)
+	@echo "$(GREEN)Building project...$(NC)"
+	npm run build
+	@echo "$(GREEN)✓ Build completed successfully$(NC)"
+	@$(MAKE) build-info
+
 # Help target
 .PHONY: help
 help: ## Show this help message
 	@echo "$(BOLD)$(PACKAGE_NAME) - Makefile Commands$(NC)"
 	@echo ""
 	@echo "$(YELLOW)Available commands:$(NC)"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(GREEN)%-25s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 	@echo "$(YELLOW)Examples:$(NC)"
-	@echo "  make install     # Install dependencies"
-	@echo "  make build       # Build the project"
-	@echo "  make dev         # Start development mode"
-	@echo "  make publish     # Publish to NPM"
+	@echo "  make install               # Install dependencies"
+	@echo "  make build                 # Build the project"
+	@echo "  make dev                   # Start development mode"
+	@echo "  make update-version-comments # Update version in source files"
+	@echo "  make publish               # Publish to NPM"
 
 # Installation targets
 .PHONY: install
@@ -65,14 +114,6 @@ serve: check-deps build ## Start local server for examples
 watch: check-deps ## Watch for changes and rebuild
 	@echo "$(GREEN)Watching for changes...$(NC)"
 	npm run dev
-
-# Build targets
-.PHONY: build
-build: check-deps clean ## Build the project (TypeScript + Rollup + CSS)
-	@echo "$(GREEN)Building project...$(NC)"
-	npm run build
-	@echo "$(GREEN)✓ Build completed successfully$(NC)"
-	@$(MAKE) build-info
 
 .PHONY: build-types
 build-types: check-deps ## Build only TypeScript declarations
@@ -164,24 +205,6 @@ clean-cache: ## Clean npm cache
 	@echo "$(GREEN)✓ npm cache cleaned$(NC)"
 
 # Publishing targets
-.PHONY: version-patch
-version-patch: check-deps ## Bump patch version (1.0.0 -> 1.0.1)
-	@echo "$(GREEN)Bumping patch version...$(NC)"
-	npm version patch
-	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
-
-.PHONY: version-minor
-version-minor: check-deps ## Bump minor version (1.0.0 -> 1.1.0)
-	@echo "$(GREEN)Bumping minor version...$(NC)"
-	npm version minor
-	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
-
-.PHONY: version-major
-version-major: check-deps ## Bump major version (1.0.0 -> 2.0.0)
-	@echo "$(GREEN)Bumping major version...$(NC)"
-	npm version major
-	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
-
 .PHONY: publish-check
 publish-check: check-deps build test ## Check if package is ready for publishing
 	@echo "$(GREEN)Checking package for publishing...$(NC)"
@@ -337,7 +360,7 @@ git-status: ## Show git status
 .PHONY: git-tag
 git-tag: ## Create git tag for current version
 	@echo "$(GREEN)Creating git tag v$(VERSION)...$(NC)"
-	#git tag v$(VERSION)
+	git tag v$(VERSION)
 	git push origin v$(VERSION)
 	@echo "$(GREEN)✓ Tag v$(VERSION) created and pushed$(NC)"
 
@@ -377,5 +400,4 @@ ci: install lint test build ## Continuous Integration target
 
 .PHONY: all
 all: clean install build test lint ## Build everything from scratch
-	@echo "$(GREEN)✓ Full build completed$(NC)"
 	@echo "$(GREEN)✓ Full build completed$(NC)"
