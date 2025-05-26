@@ -201,7 +201,6 @@ export class TimePicker {
 
     private bindEvents(): void {
         this.element.addEventListener('click', (e: Event) => {
-            console.log('Input clicked, isOpen:', this.isOpen);
             e.stopPropagation();
             e.preventDefault();
             if (!this.options.disabled) {
@@ -209,28 +208,13 @@ export class TimePicker {
             }
         });
 
-        // this.element.addEventListener('focus', () => {
-        //     console.log('Input focused, isOpen:', this.isOpen);
-        //     if (!this.options.disabled) {
-        //         this.open();
-        //     }
-        // });
-
         // Close dropdown when clicking outside
         document.addEventListener('click', (e: Event) => {
             const target = e.target as Element;
             const isInputClick = this.element.contains(target);
             const isDropdownClick = this.dropdown.contains(target);
 
-            console.log('Document clicked:', {
-                isOpen: this.isOpen,
-                isInputClick,
-                isDropdownClick,
-                target: target.tagName
-            });
-
             if (!isInputClick && !isDropdownClick) {
-                console.log('Closing dropdown from document click');
                 this.close();
             }
         });
@@ -303,7 +287,6 @@ export class TimePicker {
     }
 
     private close(): void {
-        console.log('Closing dropdown, current state:', this.isOpen);
         if (!this.isOpen) return;
 
         this.isOpen = false;
@@ -316,7 +299,6 @@ export class TimePicker {
             container.classList.remove('open');
         }
 
-        console.log('Dropdown closed');
     }
 
     private toggle(): void {
@@ -328,7 +310,6 @@ export class TimePicker {
         const dropdownHeight = this.dropdown.offsetHeight;
         const viewportHeight = window.innerHeight;
 
-        console.log({'bottom': rect.bottom, 'scrollY': window.scrollY});
         // Position dropdown below input by default
         let top = rect.bottom + window.scrollY;
 
