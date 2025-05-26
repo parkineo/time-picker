@@ -64,21 +64,21 @@ update-all-versions: update-version-comments update-dist-version ## Update versi
 .PHONY: version-patch
 version-patch: check-deps ## Bump patch version (1.0.0 -> 1.0.1)
 	@echo "$(GREEN)Bumping patch version...$(NC)"
-	npm version patch --no-git-tag-version]
+	npm version patch --no-git-tag-version
 	@$(MAKE) update-version-comments
 	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
 
 .PHONY: version-minor
 version-minor: check-deps ## Bump minor version (1.0.0 -> 1.1.0)
 	@echo "$(GREEN)Bumping minor version...$(NC)"
-	npm version minor --no-git-tag-version]
+	npm version minor --no-git-tag-version
 	@$(MAKE) update-version-comments
 	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
 
 .PHONY: version-major
 version-major: check-deps ## Bump major version (1.0.0 -> 2.0.0)
 	@echo "$(GREEN)Bumping major version...$(NC)"
-	npm version major --no-git-tag-version]
+	npm version major --no-git-tag-version
 	@$(MAKE) update-version-comments
 	@echo "$(GREEN)✓ Version bumped to $(shell node -p "require('./package.json').version")$(NC)"
 
