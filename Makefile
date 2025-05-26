@@ -12,6 +12,7 @@ COVERAGE_DIR = coverage
 
 # Files to update with version
 VERSION_FILES = src/time-picker.ts src/types.ts src/utils.ts
+DIST_VERSION_FILES = dist/time-picker.js dist/time-picker.esm.js dist/time-picker.d.ts
 
 # Colors for output
 GREEN = \033[0;32m
@@ -28,9 +29,9 @@ BOLD = \033[1m
 update-version-comments: ## Update version in source file comments
 	@echo "$(GREEN)Updating version comments to v$(VERSION)...$(NC)"
 	@for file in $(VERSION_FILES); do \
-		if [ -f "$$file" ]; then \
-			echo "  Updating $$file"; \
-			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$$file" && rm "$$file.bak" || rm -f "$$file.bak"; \
+		if [ -f "$file" ]; then \
+			echo "  Updating $file"; \
+			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$file" && rm "$file.bak" || rm -f "$file.bak"; \
 		fi; \
 	done
 	@if [ -f "$(SRC_DIR)/time-picker.css" ]; then \
@@ -38,6 +39,34 @@ update-version-comments: ## Update version in source file comments
 		sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(SRC_DIR)/time-picker.css" && rm "$(SRC_DIR)/time-picker.css.bak" || rm -f "$(SRC_DIR)/time-picker.css.bak"; \
 	fi
 	@echo "$(GREEN)✓ Version comments updated to v$(VERSION)$(NC)"
+
+.PHONY: update-dist-version
+update-dist-version: ## Update version in built dist files
+	@echo "$(GREEN)Updating version in dist files to v$(VERSION)...$(NC)"
+	@if [ -d "$(DIST_DIR)" ]; then \
+		for file in $(DIST_VERSION_FILES); do \
+			if [ -f "$file" ]; then \
+				echo "  Updating $file"; \
+				sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$file" && rm "$file.bak" || rm -f "$file.bak"; \
+				sed -i.bak 's/version: "[0-9]\+\.[0-9]\+\.[0-9]\+"/version: "$(VERSION)"/g' "$file" && rm "$file.bak" || rm -f "$file.bak"; \
+				sed -i.bak "s/version: '[0-9]\+\.[0-9]\+\.[0-9]\+'/version: '$(VERSION)'/g" "$file" && rm "$file.bak" || rm -f "$file.bak"; \
+			fi; \
+		done; \
+		if [ -f "$(DIST_DIR)/time-picker.css" ]; then \
+			echo "  Updating $(DIST_DIR)/time-picker.css"; \
+			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(DIST_DIR)/time-picker.css" && rm "$(DIST_DIR)/time-picker.css.bak" || rm -f "$(DIST_DIR)/time-picker.css.bak"; \
+		fi; \
+		if [ -f "$(DIST_DIR)/time-picker.min.css" ]; then \
+			echo "  Updating $(DIST_DIR)/time-picker.min.css"; \
+			sed -i.bak 's/@version [0-9]\+\.[0-9]\+\.[0-9]\+/@version $(VERSION)/g' "$(DIST_DIR)/time-picker.min.css" && rm "$(DIST_DIR)/time-picker.min.css.bak" || rm -f "$(DIST_DIR)/time-picker.min.css.bak"; \
+		fi; \
+		echo "$(GREEN)✓ Dist version updated to v$(VERSION)$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠ Dist directory not found, skipping dist version update$(NC)"; \
+	fi
+
+.PHONY: update-all-versions
+update-all-versions: update-version-comments update-dist-version ## Update version in both source and dist files
 
 .PHONY: version-patch
 version-patch: check-deps ## Bump patch version (1.0.0 -> 1.0.1)
@@ -62,10 +91,11 @@ version-major: check-deps ## Bump major version (1.0.0 -> 2.0.0)
 
 # Build targets with version update
 .PHONY: build
-build: check-deps clean update-version-comments ## Build the project (TypeScript + Rollup + CSS)
-	@echo "$(GREEN)Building project...$(NC)"
+build: check-deps clean update-version-comments ## Build project with version injection
+	@echo "$(GREEN)Building project with version v$(VERSION)...$(NC)"
+	@echo "$(YELLOW)• Versions will be injected during build process$(NC)"
 	npm run build
-	@echo "$(GREEN)✓ Build completed successfully$(NC)"
+	@echo "$(GREEN)✓ Build completed with version v$(VERSION)$(NC)"
 	@$(MAKE) build-info
 
 # Help target
@@ -81,6 +111,8 @@ help: ## Show this help message
 	@echo "  make build                 # Build the project"
 	@echo "  make dev                   # Start development mode"
 	@echo "  make update-version-comments # Update version in source files"
+	@echo "  make update-dist-version   # Update version in dist files"
+	@echo "  make update-all-versions   # Update version in all files"
 	@echo "  make publish               # Publish to NPM"
 
 # Installation targets
@@ -360,7 +392,6 @@ git-status: ## Show git status
 .PHONY: git-tag
 git-tag: ## Create git tag for current version
 	@echo "$(GREEN)Creating git tag v$(VERSION)...$(NC)"
-	git tag v$(VERSION)
 	git push origin v$(VERSION)
 	@echo "$(GREEN)✓ Tag v$(VERSION) created and pushed$(NC)"
 
