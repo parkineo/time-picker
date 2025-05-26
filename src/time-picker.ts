@@ -256,16 +256,49 @@ export class TimePicker {
             }
         }
     }
+    private ensureContainerWrapper(): void {
+        const parent = this.element.parentNode;
+        if (!parent) {
+            throw new Error('TimePicker: Input element must have a parent node');
+        }
 
+        // Check if input is already wrapped in a container
+        if (!(parent as HTMLElement).classList.contains('time-picker-container')) {
+            // Create container wrapper
+            const container = document.createElement('div');
+            container.className = 'time-picker-container';
+
+            // Insert container before input
+            parent.insertBefore(container, this.element);
+
+            // Move input into container
+            container.appendChild(this.element);
+
+            // Create and add clock icon
+            const clockIcon = document.createElement('div');
+            clockIcon.className = 'time-picker-icon';
+            container.appendChild(clockIcon);
+
+            // Create and add chevron icon
+            const chevronIcon = document.createElement('div');
+            chevronIcon.className = 'time-picker-chevron';
+            container.appendChild(chevronIcon);
+        }
+    }
     private open(): void {
         if (this.isOpen || this.options.disabled) return;
 
         this.isOpen = true;
         this.dropdown.style.display = 'block';
         this.dropdown.setAttribute('aria-expanded', 'true');
-        this.positionDropdown();
 
-        // Always scroll to selected time if one exists
+        // Add 'open' class to container for chevron rotation
+        const container = this.element.parentNode as HTMLElement;
+        if (container && container.classList.contains('time-picker-container')) {
+            container.classList.add('open');
+        }
+
+        this.positionDropdown();
         this.scrollToSelected();
     }
 
@@ -276,6 +309,13 @@ export class TimePicker {
         this.isOpen = false;
         this.dropdown.style.display = 'none';
         this.dropdown.setAttribute('aria-expanded', 'false');
+
+        // Remove 'open' class from container for chevron rotation
+        const container = this.element.parentNode as HTMLElement;
+        if (container && container.classList.contains('time-picker-container')) {
+            container.classList.remove('open');
+        }
+
         console.log('Dropdown closed');
     }
 

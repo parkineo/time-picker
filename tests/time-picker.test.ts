@@ -35,7 +35,7 @@ describe('TimePicker', () => {
 
             expect(input.classList.contains('time-picker-input')).toBe(true);
             expect(input.getAttribute('readonly')).toBe('true');
-            expect(input.getAttribute('placeholder')).toBe('Select time');
+            expect(input.getAttribute('placeholder')).toBe('--:--');
         });
 
         test('should initialize with custom options', () => {
