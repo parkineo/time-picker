@@ -49,7 +49,7 @@ export class TimePicker {
             defaultTime: '',
             minTime: null,
             maxTime: null,
-            placeholder: 'Select time',
+            placeholder: '--:--',
             disabled: false,
             onChange: null,
             ...options
@@ -64,11 +64,11 @@ export class TimePicker {
         this.createDropdown();
         this.bindEvents();
 
-        // if (this.selectedTime) {
-        //     this.element.value = TimeUtils.formatTime(this.selectedTime, this.options.format);
-        //     // Ensure the selected option is marked in the dropdown
-        //     this.updateSelectedOption(this.selectedTime);
-        // }
+        if (this.selectedTime) {
+            this.element.value = TimeUtils.formatTime(this.selectedTime, this.options.format);
+            // Ensure the selected option is marked in the dropdown
+            this.updateSelectedOption(this.selectedTime);
+        }
     }
 
     private setupElement(): void {
@@ -417,11 +417,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const elements = document.querySelectorAll<HTMLInputElement>('[data-time-picker]');
     elements.forEach((element: HTMLInputElement) => {
         const format = (element.dataset.format as TimeFormat) || '24h';
-        const defaultTime = element.dataset.defaultTime || '';
-        const minTime = element.dataset.minTime || null;
-        const maxTime = element.dataset.maxTime || null;
+        const defaultTime = element.dataset.defaulttime || '';
+        const minTime = element.dataset.mintime || null;
+        const maxTime = element.dataset.maxtime || null;
         const step = parseInt(element.dataset.step || '15', 10);
-
         new TimePicker(element, {
             format,
             defaultTime,
